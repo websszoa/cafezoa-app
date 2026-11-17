@@ -93,10 +93,8 @@ function CafeSheetBody({ cafe }: { cafe: MapCafe }) {
 
   return (
     <div className="overflow-y-auto overscroll-contain px-5 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-      <CafePhotoSlider key={cafe.slug} name={cafe.name} photos={photos} />
-
-      {/* 기본 정보 */}
-      <div className="mt-6">
+      {/* 기본 정보 (사진 영역 위쪽) */}
+      <div className="mb-4">
         <div className="flex flex-wrap gap-1.5">
           {cafe.type.map((type) => (
             <span
@@ -123,10 +121,15 @@ function CafeSheetBody({ cafe }: { cafe: MapCafe }) {
             </span>
           )}
         </div>
-        <DrawerDescription className="mt-3 text-sm leading-6 text-[#795f55]">
-          {cafe.description || cafe.summary}
-        </DrawerDescription>
       </div>
+
+      {/* 사진 */}
+      <CafePhotoSlider key={cafe.slug} name={cafe.name} photos={photos} />
+
+      {/* 카페 소개 */}
+      <DrawerDescription className="mt-5 text-sm leading-6 text-[#795f55]">
+        {cafe.description || cafe.summary}
+      </DrawerDescription>
 
       {/* 평점 */}
       <div className="mt-5 grid grid-cols-2 gap-3">

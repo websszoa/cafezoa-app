@@ -66,6 +66,18 @@ export function NaverMap({ className, cafes = [], onSelectCafe }: NaverMapProps)
     let instance: naver.maps.Map | undefined;
     let cancelled = false;
 
+    // 네이버 지도 인증 실패 콜백 (SDK가 전역 함수로 호출한다).
+    // 등록해야 할 도메인을 알 수 있도록 현재 접속 주소를 같이 보여준다.
+    window.navermap_authFailure = () => {
+      const { protocol, host, origin } = window.location;
+      console.error("[naver-map] auth failure", { origin, protocol, host, referrer: document.referrer });
+      if (!cancelled) {
+        setError(
+          `네이버 지도 인증에 실패했어요.\n네이버 클라우드 콘솔 > Maps > Web 서비스 URL에 아래 주소를 등록해 주세요.\n\n${origin && origin !== "null" ? origin : `${protocol}//${host}`}`,
+        );
+      }
+    };
+
     loadNaverMapSdk(CLIENT_ID)
       .then(() => {
         if (cancelled || !containerRef.current) return;
@@ -165,7 +177,7 @@ export function NaverMap({ className, cafes = [], onSelectCafe }: NaverMapProps)
 
   if (error) {
     return (
-      <div className="flex h-full w-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+      <div className="flex h-full w-full items-center justify-center p-6 text-center text-sm whitespace-pre-line break-all text-muted-foreground">
         {error}
       </div>
     );
