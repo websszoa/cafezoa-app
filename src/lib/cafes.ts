@@ -155,3 +155,91 @@ export function searchCafes<T extends Cafe>(cafes: T[], query: string): T[] {
       normalize(cafe.name).includes(keyword) || normalize(cafe.location.address).includes(keyword),
   );
 }
+
+// ---------------------------------------------------------------------
+// 보기 기준 (처음 팝업에서 고른다)
+// ---------------------------------------------------------------------
+
+export type ViewMode = "nearby" | "naver" | "google";
+
+/** 지도에 보여줄 카페 수 선택지 (상단 오른쪽 버튼) */
+export const VIEW_LIMITS = [10, 20, 30] as const;
+export type ViewLimit = (typeof VIEW_LIMITS)[number];
+
+/** 기본으로 보여줄 카페 수 (cafezoa.com 지도 TOP 10 과 동일) */
+export const VIEW_LIMIT: ViewLimit = 10;
+
+export const VIEW_MODES: Record<
+  ViewMode,
+  { label: string; short: string; description: (limit: number) => string }
+> = {
+  nearby: {
+    label: "내 위치 근처 카페",
+    short: "가까운 순",
+    description: (limit) => `내 위치에서 가까운 카페 ${limit}곳을 보여드려요.`,
+  },
+  naver: {
+    label: "네이버 평점 높은 순",
+    short: "네이버 평점 순",
+    description: (limit) => `네이버 평점이 높은 카페 TOP ${limit}을 보여드려요.`,
+  },
+  google: {
+    label: "구글 평점 높은 순",
+    short: "구글 평점 순",
+    description: (limit) => `구글 평점이 높은 카페 TOP ${limit}을 보여드려요.`,
+  },
+};
+
+/** 기준으로 정렬한 카페 (거리 포함) */
+export type RankedCafe = MapCafe & { distance: number | null };
+
+/**
+ * 기준에 맞는 카페를 골라 정렬하고 상위 limit 곳만 돌려준다.
+ * - nearby: 내 위치에서 가까운 순 (위치가 없으면 빈 배열)
+ * - naver / google: 해당 평점이 있는 카페만, 높은 순
+ */
+export function rankCafes(
+  cafes: MapCafe[],
+  mode: ViewMode,
+  location: { latitude: number; longitude: number } | null,
+  limit: number = VIEW_LIMIT,
+): RankedCafe[] {
+  const withDistance: RankedCafe[] = cafes.map((cafe) => ({
+    ...cafe,
+    distance: location
+      ? distanceBetween(location.latitude, location.longitude, cafe.location.latitude, cafe.location.longitude)
+      : null,
+  }));
+
+  const sorted =
+    mode === "nearby"
+      ? withDistance.filter((cafe) => cafe.distance !== null).sort((a, b) => a.distance! - b.distance!)
+      : withDistance
+          .filter((cafe) => cafe.ratings[mode] !== null)
+          .sort((a, b) => b.ratings[mode]!.rating - a.ratings[mode]!.rating);
+
+  return sorted.slice(0, limit);
+}
+
+/**
+ * 마커 배지에 보여줄 값: 기준 평점 또는 거리
+ * distance가 없는 카페(예: 전체 목록에서 고른 카페)는 location으로 계산한다.
+ */
+export function getMarkerBadge(
+  cafe: MapCafe & { distance?: number | null },
+  mode: ViewMode,
+  location: { latitude: number; longitude: number } | null = null,
+) {
+  if (mode === "nearby") {
+    const distance =
+      typeof cafe.distance === "number"
+        ? cafe.distance
+        : location
+          ? distanceBetween(location.latitude, location.longitude, cafe.location.latitude, cafe.location.longitude)
+          : null;
+    return distance !== null ? formatDistance(distance) : "";
+  }
+  const rating = cafe.ratings[mode];
+  if (!rating) return "";
+  return `★ ${rating.rating.toFixed(2)}`;
+}

@@ -24,17 +24,17 @@ const locationNotices = [
   {
     icon: Ruler,
     title: "카페까지 거리 표시",
-    text: "내 위치부터 카페까지의 거리를 km로 확인할 수 있어요.",
+    text: "내 위치에서 카페까지 거리를 km로 바로 알려드려요.",
   },
   {
     icon: Navigation,
     title: "지도에 내 위치 표시",
-    text: "지도에 내 위치가 함께 표시돼서 주변 카페를 한눈에 볼 수 있어요.",
+    text: "지도에 내 위치가 표시돼 주변 카페를 한눈에 볼 수 있어요.",
   },
   {
     icon: ShieldCheck,
     title: "위치 정보 보호",
-    text: "위치는 이 기기에만 저장되며 서버로 보내거나 다른 사람에게 공개하지 않아요. 앱 저장소를 지우면 함께 삭제돼요.",
+    text: "위치는 이 기기에만 저장되고, 서버로 보내거나 공개하지 않아요.",
   },
 ];
 
@@ -60,7 +60,14 @@ export function DialogLocation({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-5 rounded-3xl border-2 border-bark bg-cream p-6 text-bark shadow-[4px_5px_0_var(--color-bark)] ring-0 sm:max-w-md sm:p-7">
+      <DialogContent
+        // 열릴 때 첫 버튼 대신 팝업 자체에 포커스 (포커스 테두리가 바로 보이지 않게, 키보드 이동은 팝업 안에서 시작)
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          (event.currentTarget as HTMLElement | null)?.focus();
+        }}
+        className="gap-5 rounded-3xl border-2 border-bark bg-cream p-6 text-bark shadow-[4px_5px_0_var(--color-bark)] ring-0 outline-none sm:max-w-md sm:p-7"
+      >
         <DialogHeader className="items-center gap-2">
           <span className="grid size-12 place-items-center rounded-full border-2 border-bark bg-leaf">
             <LocateFixed className="size-6" />
@@ -101,7 +108,6 @@ export function DialogLocation({
           <DialogClose asChild>
             <Button
               variant="seed"
-              size="icon-lg"
               className="w-full bg-white text-bark hover:bg-cream"
             >
               다음에 할게요
@@ -109,7 +115,6 @@ export function DialogLocation({
           </DialogClose>
           <Button
             variant="seed"
-            size="icon-lg"
             disabled={isLoading}
             onClick={onConfirm}
             className="w-full bg-autumn text-white hover:bg-autumn-dark"

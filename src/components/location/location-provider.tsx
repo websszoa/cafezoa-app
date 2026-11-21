@@ -105,17 +105,12 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setOpen(true);
   }, []);
 
-  const checkLocation = useCallback(() => {
-    if (!location) {
-      openDialog();
-      return;
-    }
-    requestLocation(() => toast.success("내 위치를 새로 확인했어요."));
-  }, [location, openDialog, requestLocation]);
+  // "내 위치 확인하기": 저장된 위치가 있어도 항상 안내 팝업을 먼저 연다.
+  const checkLocation = openDialog;
 
   const value = useMemo(
-    () => ({ location, status, checkLocation, openDialog }),
-    [location, status, checkLocation, openDialog],
+    () => ({ location, status, checkLocation, openDialog, requestLocation }),
+    [location, status, checkLocation, openDialog, requestLocation],
   );
 
   return (
@@ -128,7 +123,11 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         onConfirm={() =>
           requestLocation(() => {
             setOpen(false);
-            toast.success("내 위치를 켰어요. 가까운 카페를 찾아보세요.");
+            toast.success(
+              location
+                ? "내 위치를 새로 확인했어요."
+                : "내 위치를 켰어요. 가까운 카페를 찾아보세요.",
+            );
           })
         }
       />

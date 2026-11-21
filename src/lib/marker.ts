@@ -16,9 +16,17 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
-/** 카페 이름 알약과 그 위의 네이버 평점 배지로 이루어진 마커 HTML (cafezoa.com getMarkerContent 와 동일한 디자인) */
-export function cafeMarkerHtml({ name, naverRating }: Pick<MapCafe, "name" | "naverRating">) {
-  const ratingBadge = naverRating !== null ? `★ ${naverRating.toFixed(2)}` : "";
+/**
+ * 카페 이름 알약과 그 위의 배지로 이루어진 마커 HTML (cafezoa.com getMarkerContent 와 동일한 디자인)
+ * badge: 배지 문구 (예: "★ 4.30", "1.2km"). 없으면 네이버 평점, 그것도 없으면 배지 없음
+ */
+export function cafeMarkerHtml(
+  { name, naverRating }: Pick<MapCafe, "name" | "naverRating">,
+  badge?: string,
+) {
+  const ratingBadge = escapeHtml(
+    badge ?? (naverRating !== null ? `★ ${naverRating.toFixed(2)}` : ""),
+  );
   const { width, height } = CAFE_MARKER_SIZE;
 
   return `

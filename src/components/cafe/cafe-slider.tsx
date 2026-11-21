@@ -77,7 +77,7 @@ export function CafePhotoSlider({
                   }
                   loading={index === 0 ? "eager" : "lazy"}
                   draggable={false}
-                  className="aspect-4/3 w-full object-cover select-none"
+                  className="aspect-4/5 w-full object-cover select-none"
                 />
               </CarouselItem>
             ))}
@@ -117,7 +117,7 @@ export function CafePhotoSlider({
       {photos.length > 1 && (
         <div
           ref={thumbsRef}
-          className="mt-3 flex gap-2 overflow-x-auto px-0.5 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
+          className="mt-1.5 flex gap-1.5 overflow-x-auto px-0.5 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
         >
           {photos.map((item, index) => (
             <button
@@ -127,10 +127,9 @@ export function CafePhotoSlider({
               aria-current={index === current}
               onClick={() => api?.scrollTo(index)}
               className={cn(
-                "size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all",
-                index === current
-                  ? "border-autumn"
-                  : "border-transparent opacity-60",
+                // 테두리는 모두 bark, 지금 보는 사진만 선명하게
+                "size-14 shrink-0 overflow-hidden rounded-xl border-2 border-bark transition-opacity",
+                index === current ? "opacity-100" : "opacity-50",
               )}
             >
               <img

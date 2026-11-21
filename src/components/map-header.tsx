@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { MapPinned, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 // 지도 위 상단 헤더. (cafezoa.com /map 페이지의 모바일 상단 바와 같은 디자인)
-// 왼쪽 버튼: 검색을 지우고 전체 카페 보기 / 오른쪽: 카페 이름·지역 검색
+// 왼쪽 버튼: 검색을 지우고 전체 카페 보기 / 가운데: 카페 이름·지역 검색 / 오른쪽: children (예: 개수 버튼)
 export function MapHeader({
   onSearch,
+  children,
 }: {
   onSearch: (query: string) => void;
+  children?: ReactNode;
 }) {
   const [value, setValue] = useState("");
 
@@ -24,7 +26,7 @@ export function MapHeader({
         size="icon"
         aria-label="전체 카페 보기"
         onClick={reset}
-        className="size-11 shrink-0 bg-leaf p-0 text-bark hover:bg-leaf-dark"
+        className="size-11 shrink-0 bg-leaf p-0 text-bark shadow-none hover:bg-leaf-dark"
       >
         <MapPinned className="size-5" />
       </Button>
@@ -61,6 +63,8 @@ export function MapHeader({
           </button>
         )}
       </div>
+
+      {children}
     </header>
   );
 }
